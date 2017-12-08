@@ -9,8 +9,40 @@ import {
   Platform,
   StyleSheet,
   Text,
-  View
+  View,
+  DeviceEventEmitter
 } from 'react-native';
+
+const Discovery = require('react-native-discovery');
+const myUUID = "48534442-4C45-4144-80C0-1800FFFFFFFF";
+
+Discovery.initialize(
+  myUUID,
+  "iBeacon"
+);
+Discovery.setShouldAdvertise(myUUID, true);
+Discovery.setShouldDiscover(myUUID, true);
+
+DeviceEventEmitter.addListener(
+  'discoveredUsers',
+  (data) => {
+    if (data.uuid == myUUID) {
+      if (data.didChange || data.usersChanged) { //slight callback discrepancy between the iOS and Android libraries
+        console.log("========== discovered");
+        console.log(data);
+        console.log(data.users);
+      }
+    }
+  }
+);
+
+// Listen for bluetooth state changes
+DeviceEventEmitter.addListener(
+  'bleStateChanged',
+  (event) => {
+    console.log('BLE is On: ' + event.isOn)
+  }
+);
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' +
